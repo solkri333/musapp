@@ -1,6 +1,6 @@
 .dart_tool
-credentials.json
-token.json
+lib/credentials.json
+lib/token.json
 .idea
 android
 build
