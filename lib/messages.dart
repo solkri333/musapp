@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/style.dart';
+// import 'package:flutter_html/flutter_html.dart';
+// import 'package:flutter_html/style.dart';
 
 class MessagePage extends StatelessWidget {
   const MessagePage({
@@ -170,19 +170,19 @@ class MessagePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 50),
-                    Html(
-                      // message,
-                      data: message,
-                      style: {
-                        // Define the style properties for the HTML content
-                        'body': Style(
-                          fontSize: const FontSize(24.0),
-                          margin: const EdgeInsets.only(left: 20, right: 80.0),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        // Add more style definitions if needed
-                      },
-                    )
+                    // Html(
+                    //   // message,
+                    //   data: message,
+                    //   style: {
+                    //     // Define the style properties for the HTML content
+                    //     'body': Style(
+                    //       fontSize: const FontSize(24.0),
+                    //       margin: const EdgeInsets.only(left: 20, right: 80.0),
+                    //       fontWeight: FontWeight.w400,
+                    //     ),
+                    //     // Add more style definitions if needed
+                    //   },
+                    // )
                     // if (decodedHtml.isNotEmpty)
                     //   Html(
                     //     data: decodedHtml,

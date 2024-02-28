@@ -19,26 +19,67 @@ app=Flask(__name__)
 cwd=os.getcwd()
 cwd+=r'\lib'
 
+@app.route("/checkAccount", methods=["POST"])
+def checkAccount():
+    global creds
+    creds=None
+
+    try:
+        if os.path.exists(rf'{cwd}\token.json'):
+            creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+        else:
+            return jsonify({'statusCode': 100, 'error': "token.json does not exist"})
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            return jsonify({'statusCode': 200})
+        return jsonify({'statusCode':100})
+    except Exception as error:
+        return jsonify({'statusCode': 100,'error':error})
+
+@app.route("/signIn", methods=["POST"])
+def signIn():
+    global creds
+    creds=None
+    try:
+        if os.path.exists(rf'{cwd}\token.json'):
+            creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    rf'{cwd}\credentials.json', SCOPES)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials  for the next run
+            with open(rf'{cwd}\token.json', 'w') as token:
+                token.write(creds.to_json())
+        return jsonify({'statusCode': 200, 'result': "Signed in succesfully"})
+    except Exception as error:
+        return jsonify({'statusCode': 100,'error':error})
+
+
 @app.route("/", methods=["GET"])
 def primary():
 
-    creds = None
+    # global creds
+    # creds=Credentials(user_id)
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists(rf'{cwd}\token.json'):
-        creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-        #     creds.refresh(Request())
-        # else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                rf'{cwd}\credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials  for the next run
-        with open(rf'{cwd}\token.json', 'w') as token:
-            token.write(creds.to_json())
+    # if os.path.exists(rf'{cwd}\token.json'):
+    #     creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #     #     creds.refresh(Request())
+    #     # else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             rf'{cwd}\credentials.json', SCOPES)
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials  for the next run
+    #     with open(rf'{cwd}\token.json', 'w') as token:
+    #         token.write(creds.to_json())
 
     try:
         service= build('gmail', 'v1', credentials=creds)
@@ -113,25 +154,25 @@ def primary():
 
 @app.route("/spam",methods=['GET'])
 def spam():
-    creds = None
+    # creds = Credentials(user_id)
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    cwd=os.getcwd()
-    cwd+=r'\lib'
-    if os.path.exists(rf'{cwd}\token.json'):
-        creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                rf'{cwd}\credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials  for the next run
-        with open(rf'{cwd}\token.json', 'w') as token:
-            token.write(creds.to_json())
+    # cwd=os.getcwd()
+    # cwd+=r'\lib'
+    # if os.path.exists(rf'{cwd}\token.json'):
+    #     creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             rf'{cwd}\credentials.json', SCOPES)
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials  for the next run
+    #     with open(rf'{cwd}\token.json', 'w') as token:
+    #         token.write(creds.to_json())
 
     try:
         service= build('gmail', 'v1', credentials=creds)
@@ -194,25 +235,25 @@ def spam():
 
 @app.route("/important",methods=['GET'])
 def important():
-    creds = None
+    # creds = Credentials(user_id)
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    cwd=os.getcwd()
-    cwd+=r'\lib'
-    if os.path.exists(rf'{cwd}\token.json'):
-        creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                rf'{cwd}\credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials  for the next run
-        with open(rf'{cwd}\token.json', 'w') as token:
-            token.write(creds.to_json())
+    # cwd=os.getcwd()
+    # cwd+=r'\lib'
+    # if os.path.exists(rf'{cwd}\token.json'):
+    #     creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             rf'{cwd}\credentials.json', SCOPES)
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials  for the next run
+    #     with open(rf'{cwd}\token.json', 'w') as token:
+    #         token.write(creds.to_json())
 
     try:
         service= build('gmail', 'v1', credentials=creds)
@@ -278,25 +319,25 @@ def important():
 
 @app.route("/starred",methods=['GET'])
 def starred():
-    creds = None
+    # creds = Credentials(user_id)
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    cwd=os.getcwd()
-    cwd+=r'\lib'
-    if os.path.exists(rf'{cwd}\token.json'):
-        creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                rf'{cwd}\credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials  for the next run
-        with open(rf'{cwd}\token.json', 'w') as token:
-            token.write(creds.to_json())
+    # cwd=os.getcwd()
+    # cwd+=r'\lib'
+    # if os.path.exists(rf'{cwd}\token.json'):
+    #     creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             rf'{cwd}\credentials.json', SCOPES)
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials  for the next run
+    #     with open(rf'{cwd}\token.json', 'w') as token:
+    #         token.write(creds.to_json())
 
     try:
         service= build('gmail', 'v1', credentials=creds)
@@ -365,7 +406,7 @@ def messages():
         request_data=request.data
         request_data=json.loads(request_data.decode('utf-8'))
         data=request_data['msgId']
-        creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+        # creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
         service= build('gmail', 'v1', credentials=creds)
         msg=service.users().messages().get(userId='me',id=data).execute()
         payload = msg['payload']

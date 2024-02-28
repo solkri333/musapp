@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'homepage.dart';
 // import 'Primary.dart';
@@ -5,29 +7,37 @@ import 'homepage.dart';
 // import 'important.dart';
 // import 'starred.dart';
 //import 'messages.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+// import 'package:flex_color_scheme/flex_color_scheme.dart';
 // import 'dart:io';
+import 'login.dart';
+import 'package:http/http.dart' as http;
 
+Widget widget = const LoginPage();
 void main() async {
+  if (await checkAccount()) {
+    widget = const MyHomePage();
+  } else {
+    widget = const LoginPage();
+  }
   runApp(MyApp());
 }
 
-const FlexSchemeData customFlexScheme = FlexSchemeData(
-  name: 'Toledo purple',
-  description: 'Purple theme created from custom defined colors.',
-  light: FlexSchemeColor(
-    primary: Color(0xFF4E0028),
-    primaryVariant: Color(0xFF320019),
-    secondary: Color(0xFF003419),
-    secondaryVariant: Color(0xFF002411),
-  ),
-  dark: FlexSchemeColor(
-    primary: Color.fromARGB(255, 160, 85, 124),
-    primaryVariant: Color(0xFF775C69),
-    secondary: Color(0xFF738F81),
-    secondaryVariant: Color(0xFF5C7267),
-  ),
-);
+// const FlexSchemeData customFlexScheme = FlexSchemeData(
+//   name: 'Toledo purple',
+//   description: 'Purple theme created from custom defined colors.',
+//   light: FlexSchemeColor(
+//     primary: Color(0xFF4E0028),
+//     primaryVariant: Color(0xFF320019),
+//     secondary: Color(0xFF003419),
+//     secondaryVariant: Color(0xFF002411),
+//   ),
+//   dark: FlexSchemeColor(
+//     primary: Color.fromARGB(255, 160, 85, 124),
+//     primaryVariant: Color(0xFF775C69),
+//     secondary: Color(0xFF738F81),
+//     secondaryVariant: Color(0xFF5C7267),
+//   ),
+// );
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
@@ -58,11 +68,12 @@ class MyApp extends StatelessWidget {
       //   visualDensity: FlexColorScheme.comfortablePlatformDensity,
       // ).toTheme,
       theme: ThemeData(
-          primaryColor: colorPalette['primary'],
-          // ignore: deprecated_member_use
-          accentColor: colorPalette['accent_2']),
+        primaryColor: colorPalette['primary'],
+        // ignore: deprecated_member_use
+        // hintColor: colorPalette['accent_2']
+      ),
 
-      home: const MyHomePage(),
+      home: widget,
     );
   }
 }
@@ -76,3 +87,14 @@ class MyApp extends StatelessWidget {
 0xFF7167C4
 0xFFD0B2D1
 0xFF198B87*/
+
+Future<bool> checkAccount() async {
+  final response =
+      await http.post(Uri.parse("http://127.0.0.1:5000/checkAccount"));
+  final decoded = json.decode(response.body);
+  if (decoded['statusCode'] == 200) {
+    return true;
+  } else {
+    return false;
+  }
+}

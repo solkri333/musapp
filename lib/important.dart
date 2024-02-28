@@ -175,15 +175,15 @@ class _ImportantPage extends State<ImportantPage> {
           elevation: 0,
           shadowColor: Colors.grey,
           // backgroundColor: Colors.white70,
-          backgroundColor: Color.fromARGB(255, 72, 135, 29),
+          backgroundColor: const Color.fromARGB(255, 72, 135, 29),
         ),
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 20, left: 20.0),
+            const Padding(
+              padding: EdgeInsets.only(top: 20, left: 20.0),
               child: Row(
                 //padding: EdgeInsets.only(left: 50),
-                children: const [
+                children: [
                   Text(
                     "Important",
                     style: TextStyle(

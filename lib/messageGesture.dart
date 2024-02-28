@@ -32,7 +32,7 @@ class MessageGesture extends StatelessWidget {
               decoration: BoxDecoration(
                   // color: Colors.grey[350],
                   // color: Color.fromARGB(255, 249, 248, 248),
-                  color: Color.fromARGB(255, 247, 247, 247),
+                  color: const Color.fromARGB(255, 247, 247, 247),
                   borderRadius: BorderRadius.circular(0),
                   boxShadow: [
                     BoxShadow(
