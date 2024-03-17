@@ -205,7 +205,7 @@ import 'dart:convert';
 
 //   @override
 //   Widget build(BuildContext context) {
-//     // TODO: implement build
+//
 //     throw UnimplementedError();
 //   }
 // }
@@ -235,12 +235,12 @@ class LoginPage extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(
                   filled: true,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   fillColor: Colors.tealAccent.shade400,
                   helperStyle: TextStyle(color: Colors.grey.shade400),
                   helperText: "use email to sign in",
-                  labelStyle: TextStyle(fontWeight: FontWeight.w600),
-                  enabledBorder: OutlineInputBorder(),
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  enabledBorder: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                   labelText: "Email Address",
                   hintText: "abcde@example.com",
@@ -252,10 +252,10 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.tealAccent.shade400,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   labelText: "Password",
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(),
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  enabledBorder: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
               ),
@@ -267,7 +267,9 @@ class LoginPage extends StatelessWidget {
                 ),
                 onPressed: () async {
                   if (await signIn())
-                    Navigator.push(
+                    // ignore: curly_braces_in_flow_control_structures
+                    Navigator.pushReplacement(
+                        // ignore: use_build_context_synchronously
                         context,
                         MaterialPageRoute(
                           builder: (context) => const MyHomePage(),

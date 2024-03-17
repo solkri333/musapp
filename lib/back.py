@@ -10,6 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import base64
 from bs4 import BeautifulSoup
+import google.generativeai as genai
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -31,8 +32,8 @@ def checkAccount():
             return jsonify({'statusCode': 100, 'error': "token.json does not exist"})
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
-            return jsonify({'statusCode': 200})
-        return jsonify({'statusCode':100})
+            return jsonify({'statusCode': 100})
+        return jsonify({'statusCode':200})
     except Exception as error:
         return jsonify({'statusCode': 100,'error':error})
 
@@ -46,8 +47,8 @@ def signIn():
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
+            #     creds.refresh(Request())
+            # else:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     rf'{cwd}\credentials.json', SCOPES)
                 creds = flow.run_local_server(port=0)
@@ -399,37 +400,64 @@ def starred():
     return jsonify({'Subject': Subject,'Sender':Sender,'Payload':Payload})
 
 message=""
-@app.route("/messages", methods=['POST','GET'])
+@app.route("/messages", methods=['POST'])
 def messages():
-    if(request.method=="POST"):
-        global message
-        request_data=request.data
-        request_data=json.loads(request_data.decode('utf-8'))
-        data=request_data['msgId']
-        # creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
-        service= build('gmail', 'v1', credentials=creds)
-        msg=service.users().messages().get(userId='me',id=data).execute()
-        payload = msg['payload']
-        try:
-            parts = payload.get('parts')[0]
-            data = parts['body']['data']
-            data = data.replace("-","+").replace("_","/")
-            message=data
-            # decoded_data = base64.b64decode(data)
-            # message=decoded_data
-            # message = decoded_data.decode('utf-8')
-        except:
-            message="There's no message"
-            pass
-        return 
+    global message
+    request_data=request.data
+    request_data=json.loads(request_data.decode('utf-8'))
+    data=request_data['msgId']
+    # creds = Credentials.from_authorized_user_file(rf'{cwd}\token.json', SCOPES)
+    service= build('gmail', 'v1', credentials=creds)
+    msg=service.users().messages().get(userId='me',id=data).execute()
+    payload = msg['payload']
+    try:
+        parts = payload.get('parts')[0]
+        data = parts['body']['data']
+        data = data.replace("-","+").replace("_","/")
+        message=data
+        # decoded_data = base64.b64decode(data)
+        # message=decoded_data
+        # message = decoded_data.decode('utf-8')
+    except:
+        message="There's no message"
+        pass
+    return jsonify({"body":message})
 
     # Now, the data obtained is in lxml. So, we will parse 
     # it with BeautifulSoup library
     # soup = BeautifulSoup(decoded_data , "lxml")
-    # body = soup.body()
-    if(request.method=="GET"):
-        return jsonify({"body":message})
-    
+    # body = soup.body()\
+
+@app.route("/query", methods=["POST"])
+def query():
+    try:
+        response=request.data
+        response=json.loads(response.decode("utf-8"))
+        question=response["question"]
+        summarize=response["summary"]
+        print(type(summarize))
+        genai.configure(api_key='AIzaSyD0C3vfSD9ErwOw_C6pPEpYmY0jrjxZ79Y')
+        model = genai.GenerativeModel('gemini-pro')
+        answer=model.generate_content("Please answer this question: '"+question+"' :using the mail: "+summarize+" :Also if the question is out of context just say so")
+        print("Here")
+        return jsonify({"answer":answer.text})
+    except Exception as error:
+        print(error)
+        return jsonify({"answer":error.__str__})
+
+
+@app.route("/summary",methods=["POST"])
+def summary():
+    try:
+        response=request.data
+        response=json.loads(response.decode('utf-8'))
+        body=response["body"]
+        genai.configure(api_key='AIzaSyD0C3vfSD9ErwOw_C6pPEpYmY0jrjxZ79Y')
+        model=genai.GenerativeModel('gemini-pro')
+        summary=model.generate_content("Please summarize this: "+body)
+        return jsonify({"summary":summary.text})
+    except Exception as error:
+        return jsonify({"summary":error})
     
 
 if __name__ == '__main__':
