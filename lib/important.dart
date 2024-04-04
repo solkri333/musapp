@@ -231,6 +231,7 @@ class _ImportantPage extends State<ImportantPage> {
                               shadowcolor: 0xFF6AB837,
                             );
                           },
+                          physics: const BouncingScrollPhysics(),
                           controller: ScrollController(),
                         ),
                       ),

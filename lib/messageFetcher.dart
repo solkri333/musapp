@@ -29,13 +29,13 @@ class MessageDisplay extends StatelessWidget {
       return primarymails;
     }
     getImportant();
-    getSpam();
-    getStarred();
     final response = await http.get(Uri.parse(url));
     final decoded = json.decode(response.body);
     primarymails['Subject'] = decoded['Subject'];
     primarymails['Sender'] = decoded['Sender'];
-    primarymails['Payload'] = decoded['Payload'];
+    primarymails['Payload'] = decoded['msgId'];
+    getSpam();
+    getStarred();
     return primarymails;
   }
 
@@ -61,7 +61,7 @@ class MessageDisplay extends StatelessWidget {
     final decoded = json.decode(response.body);
     spammails['Subject'] = decoded['Subject'];
     spammails['Sender'] = decoded['Sender'];
-    spammails['Payload'] = decoded['Payload'];
+    spammails['Payload'] = decoded['msgId'];
     return spammails;
   }
 

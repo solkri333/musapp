@@ -1,5 +1,5 @@
 #from __future__ import print_function
-from flask import Flask, jsonify, request,json
+from flask import Flask, jsonify, request,json, send_file
 
 import os.path
 
@@ -89,6 +89,7 @@ def primary():
         Sender=[]
         Subject=[]
         Payload=[]
+        msgId=[]
         Body=[]
         if not messagesids:
             print(f"No messages found")
@@ -130,6 +131,7 @@ def primary():
                 
                 Subject.append(subject)
                 Sender.append(sender)
+                msgId.append(messages['id'])
                 Payload.append(payload)
                 # Body.append(body)
 
@@ -139,7 +141,7 @@ def primary():
     except:
         pass
 
-    return jsonify({'Subject': Subject,'Sender':Sender,'Msg':Payload})
+    return jsonify({'Subject': Subject,'Sender':Sender,'msgId':msgId})
     #i=0
     # try:
     #     for sub in Subject:
@@ -182,6 +184,7 @@ def spam():
         Sender=[]
         Subject=[]
         Payload=[]
+        msgId=[]
         Body=[]
         if not messagesids:
             print(f"No messages found")
@@ -223,7 +226,8 @@ def spam():
                 
                 Subject.append(subject)
                 Sender.append(sender)
-                Payload.append(payload)
+                msgId.append(messages['id'])
+                # Payload.append(payload)
                 # Body.append(body)
 
     except HttpError as error:
@@ -232,7 +236,7 @@ def spam():
     except:
         pass
 
-    return jsonify({'Subject': Subject,'Sender':Sender,'Payload':Payload})
+    return jsonify({'Subject': Subject,'Sender':Sender,'msgId':msgId})
 
 @app.route("/important",methods=['GET'])
 def important():
@@ -458,7 +462,65 @@ def summary():
         return jsonify({"summary":summary.text})
     except Exception as error:
         return jsonify({"summary":error})
-    
+
+import re
+
+@app.route("/checkUrl", methods=["POST"])
+def checkUrl():
+    try:
+        response=request.data
+        response=json.loads(response.decode('utf-8'))
+        body=response["summary"]
+        regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        url = re.findall(regex, body)
+        urls=[x[0] for x in url]
+        return jsonify({"answer": urls})
+    except Exception as error:
+        return jsonify({"answer": error})
+
+from playwright.async_api import async_playwright
+
+import io
+
+@app.route("/webpage", methods=["POST"])
+async def webpage():
+    try:
+        response=request.data
+        response=json.loads(response.decode('utf-8'))
+        url=response["url"]
+        async with async_playwright() as playwright:
+            try:
+                browser = await playwright.firefox.launch()
+                # opens a new browser page
+                page = await browser.new_page()
+                # navigate to the website
+                await page.goto(url)
+                # take a full-page screenshot
+                await page.screenshot(path='example.png', full_page=True)
+            except Exception as error:
+                print(error)
+                return jsonify({'error': str(error)})
+                # always close the browser
+            finally:
+                await browser.close()
+            file=None
+            try:
+                if(not os.path.exists('example.png')): return jsonify({'error': "Image Not Found"}), 404
+                file=open(r"f:\\flutterpro\\musapp\\example.png", 'rb')
+                return send_file(io.BytesIO(file.read()), mimetype='image/png'), 200
+            except Exception as e:
+                print(e)
+                return jsonify({'error': str(e)}), 500
+            finally:
+                if(file):
+                    file.close()
+                if os.path.exists('example.png'): os.remove('example.png')
+    except Exception as error:
+        print(error)
+        return jsonify({"error":str(error)}), 100
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -230,35 +230,40 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              const Text("Login"),
-              const SizedBox(height: 35),
-              TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  border: const OutlineInputBorder(),
-                  fillColor: Colors.tealAccent.shade400,
-                  helperStyle: TextStyle(color: Colors.grey.shade400),
-                  helperText: "use email to sign in",
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-                  enabledBorder: const OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                  labelText: "Email Address",
-                  hintText: "abcde@example.com",
-                ),
+              const Text(
+                "Login Using Google",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.blueAccent),
               ),
-              const SizedBox(height: 10),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.tealAccent.shade400,
-                  border: const OutlineInputBorder(),
-                  labelText: "Password",
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  enabledBorder: const OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
+              // const SizedBox(height: 35),
+              // TextField(
+              //   decoration: InputDecoration(
+              //     filled: true,
+              //     border: const OutlineInputBorder(),
+              //     fillColor: Colors.tealAccent.shade400,
+              //     helperStyle: TextStyle(color: Colors.grey.shade400),
+              //     helperText: "use email to sign in",
+              //     labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+              //     enabledBorder: const OutlineInputBorder(),
+              //     alignLabelWithHint: true,
+              //     labelText: "Email Address",
+              //     hintText: "abcde@example.com",
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
+              // TextField(
+              //   obscureText: true,
+              //   decoration: InputDecoration(
+              //     filled: true,
+              //     fillColor: Colors.tealAccent.shade400,
+              //     border: const OutlineInputBorder(),
+              //     labelText: "Password",
+              //     labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              //     enabledBorder: const OutlineInputBorder(),
+              //     alignLabelWithHint: true,
+              //   ),
+              // ),
+
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 style: ButtonStyle(

@@ -226,6 +226,7 @@ class _SpamPage extends State<SpamPage> {
                               msg: payload?[index],
                             );
                           },
+                          physics: const BouncingScrollPhysics(),
                           controller: ScrollController(),
                         ),
                       ),

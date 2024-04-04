@@ -74,11 +74,11 @@ class MessageGesture extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Icon(Icons.star_border,
-                        color: Color.fromARGB(255, 144, 35, 71)),
-                  ),
+                  // const Padding(
+                  //   padding: EdgeInsets.only(right: 20.0),
+                  //   child: Icon(Icons.star_border,
+                  //       color: Color.fromARGB(255, 144, 35, 71)),
+                  // ),
                 ],
               ),
             ),

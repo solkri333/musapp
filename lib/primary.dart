@@ -285,7 +285,7 @@ class _MyWidgetState extends State<MyPrimary> {
                             builder: (context, controller, physics) =>
                                 ListView.builder(
                               controller: controller,
-                              physics: physics,
+                              physics: const BouncingScrollPhysics(),
 
                               itemCount: sender?.length,
                               itemBuilder: (BuildContext context, int index) {

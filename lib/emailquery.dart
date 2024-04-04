@@ -50,6 +50,80 @@ class Summarizer extends StatelessWidget {
                   color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
+              actions: [
+                InkWell(
+                  onTap: () {},
+                  // // onHover: (isHovered) {
+                  // //   setState(() {
+                  // //     _isHovered = isHovered;
+                  // //   });
+                  // },
+                  // child: AnimatedContainer(
+                  //   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  //   decoration: BoxDecoration(
+                  //     color:
+                  //         _isHovered ? Colors.white.withOpacity(0.0) : Colors.transparent,
+                  //     border: Border.all(
+                  //         color: Colors.transparent,
+                  //         style: BorderStyle.solid,
+                  //         strokeAlign: 0,
+                  //         width: 1),
+                  //     boxShadow: _isHovered
+                  //         ? [
+                  //             BoxShadow(
+                  //               color: Color.fromARGB(200, 65, 133, 222).withOpacity(0.5),
+                  //               spreadRadius: 20,
+                  //               blurRadius: 50,
+                  //               // blurRadius: 10,
+                  //             )
+                  //           ]
+                  //         : [BoxShadow(color: Colors.white)],
+                  //   ),
+                  // duration: const Duration(milliseconds: 250),
+                  child: AnimatedContainer(
+                    // clipBehavior: Clip.antiAlias,
+                    duration: const Duration(milliseconds: 250),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: const Color.fromARGB(255, 47, 94, 223)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      // boxShadow: _isHovered
+                      //     ? [
+                      //         BoxShadow(
+                      //           // color: const Color.fromARGB(200, 65, 133, 222)
+                      //           //     .withOpacity(0.8),
+                      //           color: const Color.fromARGB(255, 0, 0, 139)
+                      //               .withOpacity(0.8),
+                      //           spreadRadius: 2,
+                      //           blurRadius: 2,
+                      //           offset: const Offset(-4.2, 4.2),
+                      //         ),
+                      //       ]
+                      //     : [],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.calendar_month, color: Colors.red.shade700),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Save to Calender',
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+              ],
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.start,
               //   children: [
@@ -83,9 +157,11 @@ class Queries extends StatefulWidget {
 }
 
 class _Queries extends State<Queries> {
+  bool optionsVisible = false;
+  List<dynamic> options = ["No url found"];
   final TextEditingController textController = TextEditingController();
   late final GlobalKey<AnimatedListState> _listKey;
-  List<String> inputHistory = [summary];
+  List<dynamic> inputHistory = [summary];
 
   @override
   void initState() {
@@ -93,77 +169,139 @@ class _Queries extends State<Queries> {
     _listKey = GlobalKey<AnimatedListState>();
   }
 
+  void toggleOptionsVisibility() {
+    setState(() {
+      optionsVisible = !optionsVisible;
+    });
+  }
+
+  void handleOptionSelected(String option) async {
+    toggleOptionsVisibility();
+    if (option == "No url found") return;
+    final response = await http.post(Uri.parse('http://127.0.0.1:5000/webpage'),
+        body: json.encode({'url': option}));
+    try {
+      final error = json.decode(response.body)["error"];
+      setState(() {
+        inputHistory.insert(0, error);
+        _listKey.currentState!
+            .insertItem(0, duration: const Duration(milliseconds: 250));
+      });
+      return;
+    } catch (e) {
+      print(e);
+    }
+    setState(() {
+      final img = response.bodyBytes;
+      inputHistory.insert(0, img);
+      _listKey.currentState!
+          .insertItem(0, duration: const Duration(milliseconds: 250));
+    });
+    print("Option Selected");
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-          child: AnimatedList(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            key: _listKey,
-            reverse: true,
-            initialItemCount: inputHistory.length,
-            itemBuilder: (context, index, animation) {
-              var icon = (index + 1) % 2 == 0
-                  ? const Icon(
-                      Icons.circle,
-                      color: Color.fromARGB(255, 0, 162, 255),
-                    )
-                  : const Icon(
-                      Icons.circle,
-                      color: Color.fromARGB(255, 240, 205, 51),
-                    );
-              index + 1 != inputHistory.length
-                  ? const AboutDialog()
-                  : icon = const Icon(Icons.circle,
-                      color: Color.fromARGB(255, 63, 205, 68));
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: _buildItem(inputHistory[index], icon, animation, index,
-                    inputHistory.length),
-              );
-            },
-            physics: const BouncingScrollPhysics(),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: textController,
-                  onSubmitted: _handleSubmit,
-                  decoration: const InputDecoration(
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(45)),
-                      borderSide: BorderSide.none,
+    _checkUrl();
+    return Stack(
+      children: <Widget>[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: AnimatedList(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                key: _listKey,
+                reverse: true,
+                initialItemCount: inputHistory.length,
+                itemBuilder: (context, index, animation) {
+                  var icon = (index + 1) % 2 == 0
+                      ? const Icon(
+                          Icons.circle,
+                          color: Color.fromARGB(255, 0, 162, 255),
+                        )
+                      : const Icon(
+                          Icons.circle,
+                          color: Color.fromARGB(255, 240, 205, 51),
+                        );
+                  index + 1 != inputHistory.length
+                      ? const AboutDialog()
+                      : icon = const Icon(Icons.circle,
+                          color: Color.fromARGB(255, 63, 205, 68));
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0),
+                    child: _buildItem(inputHistory[index], icon, animation,
+                        index, inputHistory.length),
+                  );
+                },
+                physics: const BouncingScrollPhysics(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: textController,
+                      onSubmitted: _handleSubmit,
+                      decoration: const InputDecoration(
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(45)),
+                          borderSide: BorderSide.none,
+                        ),
+                        hintFadeDuration: Duration(milliseconds: 250),
+                        hintText: "Write your query on the mail",
+                      ),
                     ),
-                    hintFadeDuration: Duration(milliseconds: 250),
-                    hintText: "Write your query on the mail",
                   ),
-                ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  FloatingActionButton(
+                    onPressed: () => _handleSubmit(textController.text),
+                    backgroundColor: Colors.green,
+                    child: const Icon(Icons.send),
+                  ),
+                  const SizedBox(width: 20),
+                  FloatingActionButton(
+                    onPressed: () => toggleOptionsVisibility(),
+                    backgroundColor: Colors.amberAccent,
+                    child: const Icon(Icons.link),
+                  ),
+                ],
               ),
-              const SizedBox(
-                width: 10,
+            ),
+          ],
+        ),
+        Visibility(
+          visible: optionsVisible,
+          child: Container(
+            color: Colors.black.withOpacity(0.5), // Semi-transparent background
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: options.map((option) {
+                  const SizedBox(height: 10);
+                  return ElevatedButton(
+                    onPressed: () {
+                      handleOptionSelected(option);
+                    },
+                    child: Text(option),
+                  );
+                }).toList(),
               ),
-              FloatingActionButton(
-                onPressed: () => _handleSubmit(textController.text),
-                backgroundColor: Colors.green,
-                child: const Icon(Icons.send),
-              ),
-            ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildItem(String text, Icon icon, Animation<double> animation,
+  Widget _buildItem(dynamic element, Icon icon, Animation<double> animation,
       int index, int length) {
     return SlideTransition(
       position: Tween<Offset>(
@@ -177,10 +315,15 @@ class _Queries extends State<Queries> {
         child: ListTile(
           visualDensity: VisualDensity.comfortable,
           leading: icon,
-          title: Text(
-            text,
-            style: const TextStyle(color: Colors.white),
-          ),
+          title: String == element.runtimeType
+              ? Text(
+                  element,
+                  style: const TextStyle(color: Colors.white),
+                )
+              : SizedBox(
+                  width: 1100,
+                  height: 400,
+                  child: Image(image: MemoryImage(element))),
         ),
       ),
     );
@@ -211,6 +354,17 @@ class _Queries extends State<Queries> {
     // Simulating response
     final response = await http.post(Uri.parse('http://127.0.0.1:5000/query'),
         body: json.encode({'question': question, "summary": summary}));
+    return json.decode(response.body)['answer'];
+  }
+
+  Future<dynamic> _checkUrl() async {
+    // Simulating response
+    final response = await http.post(
+        Uri.parse('http://127.0.0.1:5000/checkUrl'),
+        body: json.encode({"summary": summary}));
+    final answer = json.decode(response.body)['answer'];
+    if (answer.length > 0) options = answer;
+    print(options);
     return json.decode(response.body)['answer'];
   }
 }
